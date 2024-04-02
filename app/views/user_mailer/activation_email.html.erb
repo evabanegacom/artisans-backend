@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Account Activation</title>
+</head>
+<body>
+  <h1>Account Activation</h1>
+  <p>Dear <%= user.name %>,</p>
+  <p>Please click the following link to activate your account:</p>
+    <!-- <a href="https://fin-man.fly.dev/api/v1/activate/<%= user.activation_token %>">Activate Account</a> -->
+
+  <a href="http://localhost:5173/activate/?uid=<%= user.id %>&token=<%= user.activation_token %>">Activate Account</a>
+  <p>Thank you!</p>
+</body>
+</html>
