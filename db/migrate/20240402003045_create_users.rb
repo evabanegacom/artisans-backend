@@ -5,7 +5,7 @@ class CreateUsers < ActiveRecord::Migration[7.0]
       t.string :email
       t.string :password_digest
       t.string :activation_token
-      t.boolean :activated
+      t.boolean :activated, default: false
       t.datetime :reset_token_expires_at
       t.datetime :activation_token_expires_at
       t.string :reset_token

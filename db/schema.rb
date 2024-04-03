@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_04_02_010327) do
+ActiveRecord::Schema[7.0].define(version: 2024_04_03_225837) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -23,6 +23,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_02_010327) do
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "pictureOne"
+    t.string "pictureTwo"
+    t.string "pictureThree"
+    t.string "pictureFour"
     t.index ["user_id"], name: "index_products_on_user_id"
   end
 
@@ -31,7 +35,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_02_010327) do
     t.string "email"
     t.string "password_digest"
     t.string "activation_token"
-    t.boolean "activated"
+    t.boolean "activated", default: false
     t.datetime "reset_token_expires_at"
     t.datetime "activation_token_expires_at"
     t.string "reset_token"
@@ -39,6 +43,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_02_010327) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "avatar"
+    t.string "state"
+    t.string "store_name"
+    t.string "mobile"
   end
 
   add_foreign_key "products", "users"
