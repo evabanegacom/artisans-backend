@@ -127,7 +127,7 @@ end
 
     # Only allow a list of trusted parameters through.
     def user_params
-      params.permit(:name, :email, :password, :password_confirmation, :avatar)
+      params.permit(:name, :email, :password, :password_confirmation, :avatar, :seller, :state, :mobile, :store_name)
     end
 
     def send_activation_email(user, html_template_path)
