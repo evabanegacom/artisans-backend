@@ -9,4 +9,8 @@ class Product < ApplicationRecord
   mount_uploader :pictureTwo, AvatarUploader
   mount_uploader :pictureThree, AvatarUploader
   mount_uploader :pictureFour, AvatarUploader
+  # add property sold_by to the product model
+  # add a validation to ensure that the sold_by property is present
+  
+
 end

@@ -19,7 +19,7 @@ Rails.application.routes.draw do
           get 'user_products'
           get 'products_by_category'
           get 'search'
-          get 'show'
+          get 'products_by_storename'
         end
       end
     end
