@@ -14,6 +14,12 @@ class Api::V1::ProductsController < ApplicationController
     render json: products
   end
 
+  def products_by_storename
+    products = Product.where(sold_by: params[:store_name])
+    products = products.order(created_at: :desc).paginate(page: params[:page], per_page: 20)
+    render json: products
+  end
+
   def products_by_category
     @products = Product.where(category: params[:category])
                                 .page(params[:page])
@@ -66,7 +72,7 @@ class Api::V1::ProductsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def product_params
-      params.require(:product).permit(:name, :description, :price, :category, :quantity, :user_id, :pictureOne, :pictureTwo, :pictureThree, :pictureFour)
+      params.permit(:name, :description, :price, :category, :quantity, :user_id, :sold_by, :contact_number :pictureOne, :pictureTwo, :pictureThree, :pictureFour)
     end
 end
 

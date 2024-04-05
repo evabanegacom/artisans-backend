@@ -38,7 +38,7 @@ end
 
 # Generate JWT token for user
 def generate_jwt_token(user)
-  payload = { user_id: user.id, exp: 1.day.from_now.to_i, email: user.email, name: user.name, avatar: user.avatar, activated: user.activated}
+  payload = { user_id: user.id, exp: 1.day.from_now.to_i, email: user.email, name: user.name, avatar: user.avatar, activated: user.activated, seller: user.seller, store_name: user.store_name, user.mobile, state: userr.state}
   JWT.encode(payload, Rails.application.secrets.secret_key_base)
 end
 
