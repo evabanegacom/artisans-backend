@@ -28,15 +28,27 @@ class Api::V1::ProductsController < ApplicationController
   end
 
   def search
-    @products = Product.where("name ILIKE ?", "%#{params[:query]}%")
-                                .page(params[:page])
-                                .per(params[:per_page])
+    query = "%#{params[:query]}%"
+    @products = Product.where("name ILIKE ? OR description ILIKE ? OR ? = ANY(tags)", query, query, params[:query])
+                       .page(params[:page])
+                       .per(params[:per_page])
     render json: @products
-  end
+  end  
 
   # GET /products/1
   def show
-    render json: @product
+    image_urls = [
+      @product.pictureOne.url,
+      @product.pictureTwo.url,
+      @product.pictureThree.url,
+      @product.pictureFour.url
+    ].compact
+
+    # Merge the image_urls array with the product attributes
+    product_with_image_urls = @product.attributes.merge('image_urls' => image_urls)
+
+    # Render JSON response with the product including image URLs
+    render json: product_with_image_urls
   end
 
   # POST /products
@@ -72,7 +84,7 @@ class Api::V1::ProductsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def product_params
-      params.permit(:name, :description, :price, :category, :quantity, :user_id, :sold_by, :contact_number :pictureOne, :pictureTwo, :pictureThree, :pictureFour)
+      params.permit(:name, :description, :price, :category, :quantity, :user_id, :sold_by, :contact_number, :pictureOne, :pictureTwo, :pictureThree, :pictureFour, :product_number, :tags)
     end
 end
 

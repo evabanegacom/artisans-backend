@@ -29,6 +29,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_05_220835) do
     t.string "pictureFour"
     t.string "sold_by"
     t.string "contact_number"
+    t.string "product_number"
+    t.text "tags", default: [], array: true
     t.index ["user_id"], name: "index_products_on_user_id"
   end
 
