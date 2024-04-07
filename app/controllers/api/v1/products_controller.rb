@@ -21,9 +21,7 @@ class Api::V1::ProductsController < ApplicationController
   end
 
   def products_by_category
-    @products = Product.where(category: params[:category])
-                                .page(params[:page])
-                                .per(params[:per_page])
+    @products = Product.where(category: params[:category]).order(created_at: :desc).paginate(page: params[:page], per_page: 20)
     render json: @products
   end
 
