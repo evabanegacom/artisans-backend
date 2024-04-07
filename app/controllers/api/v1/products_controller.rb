@@ -26,13 +26,17 @@ class Api::V1::ProductsController < ApplicationController
   end
 
   def search
-    query = "%#{params[:query]}%"
-    @products = Product.where("name ILIKE ? OR description ILIKE ? OR ? = ANY(tags)", query, query, params[:query])
-                       .page(params[:page])
-                       .per(params[:per_page])
-    render json: @products
-  end  
+    # query = "%#{params[:query].downcase}%"
+    query = "%#{params[:query].strip.downcase}%"
 
+    trimmed_query = params[:query].strip.downcase  # Trim leading and trailing whitespace
+  
+    # Use the ANY operator to check if the tags array contains the search term
+    @products = Product.where("lower(name) ILIKE ? OR lower(description) ILIKE ? OR ? = ANY(tags)", query, query, trimmed_query).order(created_at: :desc).paginate(page: params[:page], per_page: 20)
+    
+    render json: @products
+  end
+  
   # GET /products/1
   def show
     image_urls = [
