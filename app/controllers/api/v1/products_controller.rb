@@ -11,18 +11,21 @@ class Api::V1::ProductsController < ApplicationController
   def user_products
     @user_products = Product.where(user_id: params[:user_id])
     products = @user_products.order(created_at: :desc).paginate(page: params[:page], per_page: 20)
-    render json: products
+    total_products = @user_products.count
+    render json: { products: products, total_products: total_products }
   end
 
   def products_by_storename
     products = Product.where(sold_by: params[:store_name])
     products = products.order(created_at: :desc).paginate(page: params[:page], per_page: 20)
-    render json: products
+    total_products = products.count
+    render json: { products: products, total_products: total_products }
   end
 
   def products_by_category
     @products = Product.where(category: params[:category]).order(created_at: :desc).paginate(page: params[:page], per_page: 20)
-    render json: @products
+    total_products = @products.count
+    render json: { products: @products, total_products: total_products }
   end
 
   def search
@@ -33,8 +36,8 @@ class Api::V1::ProductsController < ApplicationController
   
     # Use the ANY operator to check if the tags array contains the search term
     @products = Product.where("lower(name) ILIKE ? OR lower(description) ILIKE ? OR ? = ANY(tags)", query, query, trimmed_query).order(created_at: :desc).paginate(page: params[:page], per_page: 20)
-    
-    render json: @products
+    total_products = @products.count
+    render json: { products: @products, total_products: total_products }
   end
   
   # GET /products/1
