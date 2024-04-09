@@ -23,7 +23,7 @@ class Api::V1::ProductsController < ApplicationController
   end
 
   def products_by_category
-    @products = Product.where(category: params[:category]).order(created_at: :desc).paginate(page: params[:page], per_page: 20)
+@products = Product.where('LOWER(category) = ?', params[:category].downcase).order(created_at: :desc).paginate(page: params[:page], per_page: 20)
     total_products = @products.count
     render json: { products: @products, total_products: total_products }
   end
