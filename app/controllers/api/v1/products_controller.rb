@@ -58,7 +58,11 @@ class Api::V1::ProductsController < ApplicationController
 
   # POST /products
   def create
-    @product = Product.new(product_params)
+    tags = params[:tags].split(",").map(&:strip)
+  
+  # Create the product with the parsed tags
+  @product = Product.new(product_params.merge(tags: tags))
+    # @product = Product.new(product_params)
 
     if @product.save
       render json: @product, status: :created
@@ -89,8 +93,8 @@ class Api::V1::ProductsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def product_params
-      params.permit(:name, :description, :price, :category, :quantity, :user_id, :sold_by, :contact_number, :pictureOne, :pictureTwo, :pictureThree, :pictureFour, :product_number, :tags)
-    end
+      params.permit(:name, :description, :price, :category, :quantity, :user_id, :sold_by, :contact_number, :pictureOne, :pictureTwo, :pictureThree, :pictureFour, :product_number, tags: [])
+    end    
 end
 
 # {
