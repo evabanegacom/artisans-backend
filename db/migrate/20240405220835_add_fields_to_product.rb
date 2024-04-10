@@ -3,6 +3,6 @@ class AddFieldsToProduct < ActiveRecord::Migration[7.0]
     add_column :products, :sold_by, :string
     add_column :products, :contact_number, :string 
     add_column :products, :product_number, :string
-    add_column :products, :tags, :text, array: true, default: []
+    add_column :products, :tags, :string, array: true, default: []
   end
 end
