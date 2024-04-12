@@ -6,6 +6,7 @@ class User < ApplicationRecord
     
     validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
     validates :password, presence: true, length: { minimum: 8 }, on: :create
+    validates :store_name, uniqueness: true
     
     def generate_reset_token!
         self.reset_token = SecureRandom.urlsafe_base64
