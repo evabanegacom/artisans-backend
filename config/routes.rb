@@ -9,7 +9,8 @@ Rails.application.routes.draw do
       post '/sign_in', to: 'users#sign_in'
 
       get 'monthly_savings', to: 'aggregates#savings'
-
+      
+      post 'generate_activation_token', to: 'users#generate_activation_token'
       # Password reset routes
       post '/password/reset', to: 'passwords#reset', as: 'reset_password'
       get '/password/reset/:reset_token', to: 'passwords#edit', as: 'edit_password'

@@ -62,25 +62,6 @@ def sign_in
   end
 end
 
-  # def activate
-  #   puts "Activation token received: #{params[:token]}"
-  #   user = User.find_by(activation_token: params[:token])
-
-  #   # user = User.find_by(activation_token: params[:activation_token])
-  #   puts "User found: #{user}"
-  #   if user && !user.activated?
-  #     puts "User found and not activated"
-  #     user.update(activated: true)
-  #     user.save(validate: false)
-  #     # user.skip_password_validation = true  # Skip password validation
-  #     puts "User updated"
-  #     # user.activation_token = nil
-  #     render json: { message: 'Account activated successfully' }, status: :ok
-  #   else
-  #     render json: { error: 'Invalid activation token' }, status: :unprocessable_entity
-  #   end
-  # end
-
   def activate
     puts "Activation token received: #{params[:token]}"
     user = User.find_by(activation_token: params[:token])
@@ -98,7 +79,6 @@ end
   
   def generate_activation_token
     user = User.find_by(email: params[:email])
-
     if user
       if user.activated?
         render json: { message: 'User account is already activated.' }, status: :unprocessable_entity
