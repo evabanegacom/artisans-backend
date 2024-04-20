@@ -1,4 +1,5 @@
 class Api::V1::ProductsController < ApplicationController
+  require 'securerandom'
   before_action :set_product, only: %i[ show update destroy ]
 
   # GET /products
@@ -6,7 +7,6 @@ class Api::V1::ProductsController < ApplicationController
     @products = Product.all.order(created_at: :desc).paginate(page: params[:page], per_page: 20)
     render json: @products
   end
-
 
   def user_products
     @user_products = Product.where(user_id: params[:user_id])
@@ -56,14 +56,32 @@ class Api::V1::ProductsController < ApplicationController
     render json: product_with_image_urls
   end
 
+  def get_product_by_product_number
+    product = Product.find_by(product_number: params[:product_number])
+    image_urls = [
+      product.pictureOne.url,
+      product.pictureTwo.url,
+      product.pictureThree.url,
+      product.pictureFour.url
+    ].compact
+
+    # Merge the image_urls array with the product attributes
+    product_with_image_urls = product.attributes.merge('image_urls' => image_urls)
+
+    # Render JSON response with the product including image URLs
+    render json: product_with_image_urls
+  end
+
   # POST /products
   def create
     tags = params[:tags].split(",").map(&:strip)
   
-  # Create the product with the parsed tags
-  @product = Product.new(product_params.merge(tags: tags))
-    # @product = Product.new(product_params)
-
+    # Generate a unique product number
+    product_number = generate_product_number
+  
+    # Create the product with the parsed tags and the generated product number
+    @product = Product.new(product_params.merge(tags: tags, product_number: product_number))
+  
     if @product.save
       render json: @product, status: :created
     else
@@ -89,6 +107,13 @@ class Api::V1::ProductsController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_product
       @product = Product.find(params[:id])
+    end
+
+    def generate_product_number
+      charset = [('a'..'z'), ('A'..'Z'), (0..9)].map(&:to_a).flatten
+      product_number = (0...11).map { charset[rand(charset.length)] }.join
+      product_number = generate_product_number if Product.exists?(product_number: product_number)
+      product_number
     end
 
     # Only allow a list of trusted parameters through.

@@ -21,6 +21,7 @@ Rails.application.routes.draw do
           get 'products_by_category'
           get 'search'
           get 'products_by_storename'
+          get 'get_product_by_product_number'
         end
       end
     end
