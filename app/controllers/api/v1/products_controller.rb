@@ -16,10 +16,11 @@ class Api::V1::ProductsController < ApplicationController
   end
 
   def products_by_storename
+    user = User.find_by(store_name: params[:store_name])
     products = Product.where(sold_by: params[:store_name])
     products = products.order(created_at: :desc).paginate(page: params[:page], per_page: 20)
     total_products = products.count
-    render json: { products: products, total_products: total_products }
+    render json: { products: products, total_products: total_products, store_name: user.store_name }
   end
 
   def products_by_category
