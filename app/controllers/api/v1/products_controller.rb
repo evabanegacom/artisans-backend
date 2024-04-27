@@ -74,30 +74,65 @@ class Api::V1::ProductsController < ApplicationController
   end
 
   # POST /products
+  # def create
+  #   tags = params[:tags].split(",").map(&:strip).uniq
+  #   # Generate a unique product number
+  #   product_number = generate_product_number
+  
+  #   # Create the product with the parsed tags and the generated product number
+  #   @product = Product.new(product_params.merge(tags: tags, product_number: product_number))
+  
+  #   if @product.save
+  #     render json: @product, status: :created
+  #   else
+  #     render json: @product.errors, status: :unprocessable_entity
+  #   end
+  # end
+
   def create
-    tags = params[:tags].split(",").map(&:strip)
-  
-    # Generate a unique product number
-    product_number = generate_product_number
-  
-    # Create the product with the parsed tags and the generated product number
-    @product = Product.new(product_params.merge(tags: tags, product_number: product_number))
-  
-    if @product.save
-      render json: @product, status: :created
+    if params[:tags].present? && !params[:tags].empty?
+      tags = params[:tags].uniq
+      # Generate a unique product number
+      product_number = generate_product_number
+    
+      # Create the product with the parsed tags and the generated product number
+      @product = Product.new(product_params.merge(tags: tags, product_number: product_number))
+    
+      if @product.save
+        render json: @product, status: :created
+      else
+        render json: @product.errors, status: :unprocessable_entity
+      end
     else
-      render json: @product.errors, status: :unprocessable_entity
+      render json: { error: "Tags are required for product creation" }, status: :unprocessable_entity
     end
   end
+  
 
   # PATCH/PUT /products/1
+  # def update
+  #   if @product.update(product_params)
+  #     render json: @product
+  #   else
+  #     render json: @product.errors, status: :unprocessable_entity
+  #   end
+  # end
+
   def update
-    if @product.update(product_params)
+    # Retrieve the existing product tags
+    existing_tags = @product.tags
+  
+    # Split, strip, and remove duplicates from the new tags
+    new_tags = params[:tags].uniq
+  
+    # Update the product attributes with the filtered tags
+    if @product.update(product_params.merge(tags: new_tags))
       render json: @product
     else
       render json: @product.errors, status: :unprocessable_entity
     end
   end
+  
 
   # DELETE /products/1
   def destroy
