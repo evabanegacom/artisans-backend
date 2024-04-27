@@ -91,13 +91,13 @@ class Api::V1::ProductsController < ApplicationController
 
   def create
     if params[:tags].present? && !params[:tags].empty?
-      tags = params[:tags].uniq
+      tags = params[:tags].split(",").map(&:strip).uniq
       # Generate a unique product number
       product_number = generate_product_number
-    
+  
       # Create the product with the parsed tags and the generated product number
       @product = Product.new(product_params.merge(tags: tags, product_number: product_number))
-    
+  
       if @product.save
         render json: @product, status: :created
       else
@@ -106,7 +106,8 @@ class Api::V1::ProductsController < ApplicationController
     else
       render json: { error: "Tags are required for product creation" }, status: :unprocessable_entity
     end
-  end
+  end  
+  
   
 
   # PATCH/PUT /products/1
@@ -121,10 +122,8 @@ class Api::V1::ProductsController < ApplicationController
   def update
     # Retrieve the existing product tags
     existing_tags = @product.tags
-  
     # Split, strip, and remove duplicates from the new tags
     new_tags = params[:tags].uniq
-  
     # Update the product attributes with the filtered tags
     if @product.update(product_params.merge(tags: new_tags))
       render json: @product
