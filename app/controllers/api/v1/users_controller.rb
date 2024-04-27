@@ -20,9 +20,8 @@ def create
   user = User.new(user_params)
 
   if user.save
-    user.update(activation_token: SecureRandom.urlsafe_base64)
-    user.update(activation_token_expires_at: 2.days.from_now)
-
+    user.update_columns(activation_token: SecureRandom.urlsafe_base64)
+    user.update_columns(activation_token_expires_at: 2.days.from_now)
     # Generate a JWT token for the user
     jwt_token = generate_jwt_token(user)
 
@@ -62,20 +61,45 @@ def sign_in
   end
 end
 
+  # def activate
+  #   puts "Activation token received: #{params[:token]}"
+  #   user = User.find_by(activation_token: params[:token])
+  
+  #   if user && !user.activated?
+  #     puts "User found and not activated"
+  #     user.update(activated: true, activation_token: nil)
+  #     puts "User activated and activation token cleared"
+  #     render json: { message: 'Account activated successfully' }, status: :ok
+  #   else
+  #     puts "Invalid or already used activation token: #{params[:token]}"
+  #     render json: { error: 'Invalid activation token' }, status: :unprocessable_entity
+  #   end
+  # end  
+
   def activate
     puts "Activation token received: #{params[:token]}"
     user = User.find_by(activation_token: params[:token])
   
     if user && !user.activated?
       puts "User found and not activated"
-      user.update(activated: true, activation_token: nil) # Also clears the activation_token
+      # Update activation status without modifying the avatar URL
+      user.update_columns(activated: true, activation_token: nil)
       puts "User activated and activation token cleared"
       render json: { message: 'Account activated successfully' }, status: :ok
     else
-      puts "Invalid or already used activation token: #{params[:token]}" # Improved logging for troubleshooting
+      puts "Invalid or already used activation token: #{params[:token]}"
       render json: { error: 'Invalid activation token' }, status: :unprocessable_entity
     end
   end  
+
+  def wish_list
+    user = User.find(params[:id])
+    if user
+      render json: { wish_list: user.wish_list }, status: :ok
+    else
+      render json: { error: 'User not found.' }, status: :not_found
+    end   
+  end
   
   def generate_activation_token
     user = User.find_by(email: params[:email])
@@ -134,7 +158,7 @@ end
     
       # Replace with your Mailjet sender email and name
       sender_email = 'udegbue69@gmail.com'
-      sender_name = 'Financial wellness'
+      sender_name = 'Digital Art'
       html_content = File.read(html_template_path)
       
       # Use ERB to render dynamic content
