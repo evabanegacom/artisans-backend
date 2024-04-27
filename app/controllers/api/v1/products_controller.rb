@@ -108,7 +108,13 @@ class Api::V1::ProductsController < ApplicationController
     end
   end  
   
-  
+  def create_user_wishlist
+    wish_list = []
+    user = User.find(params[:user_id])
+    product = Product.find(params[:product_id])
+    wish_list >> product
+    user.attributes.merge('wish_list' => wish_list)
+  end
 
   # PATCH/PUT /products/1
   # def update

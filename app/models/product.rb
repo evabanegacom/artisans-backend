@@ -11,7 +11,6 @@ class Product < ApplicationRecord
   mount_uploader :pictureTwo, AvatarUploader
   mount_uploader :pictureThree, AvatarUploader
   mount_uploader :pictureFour, AvatarUploader
-
   # Callback to process and set image_urls attribute before saving
   before_save :process_image_urls
 
