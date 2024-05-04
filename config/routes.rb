@@ -22,6 +22,7 @@ Rails.application.routes.draw do
           get 'search'
           get 'products_by_storename'
           get 'get_product_by_product_number'
+          get 'get_picture_to_edit'
         end
       end
     end
