@@ -73,6 +73,11 @@ class Api::V1::ProductsController < ApplicationController
     render json: product_with_image_urls
   end
 
+  def get_picture_to_edit 
+    product = Product.find_by(product_number: params[:product_number])
+    render json: product
+  end
+
   # POST /products
   # def create
   #   tags = params[:tags].split(",").map(&:strip).uniq
