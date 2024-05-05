@@ -109,10 +109,12 @@ end
     end
   end
 
-  # PATCH/PUT /users/1
   def update
     if @user.update(user_params)
-      render json: @user
+      # Generate a new JWT token for the updated user
+      jwt_token = generate_jwt_token(@user)
+      
+      render json: { user: @user, jwt_token: jwt_token }
     else
       render json: @user.errors, status: :unprocessable_entity
     end
