@@ -16,7 +16,7 @@ class Api::V1::ProductsController < ApplicationController
   end
 
   def products_by_storename
-    user = User.find_by(store_name: params[:store_name])
+    user = User.find_by(store_name: params[:store_name].strip)
     products = Product.where(sold_by: params[:store_name])
     products = products.order(created_at: :desc).paginate(page: params[:page], per_page: 20)
     total_products = products.count
