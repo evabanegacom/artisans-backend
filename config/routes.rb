@@ -5,6 +5,8 @@ Rails.application.routes.draw do
       resources :users, only: %i[create index destroy update show]
 
       post '/activate', to: 'users#activate'
+
+      get '/user_by_storename', to: 'users#find_user_by_storename'
       
       post '/sign_in', to: 'users#sign_in'
 

@@ -75,7 +75,17 @@ end
       puts "Invalid or already used activation token: #{params[:token]}"
       render json: { error: 'Invalid activation token' }, status: :unprocessable_entity
     end
-  end  
+  end
+  
+  
+  def find_user_by_storename
+    user = User.find_by(store_name: params[:store_name])
+    if user
+      render json: { user: user }, status: :ok
+    else
+      render json: { error: 'User not found.' }, status: :not_found
+    end
+  end
 
   def wish_list
     user = User.find(params[:id])
