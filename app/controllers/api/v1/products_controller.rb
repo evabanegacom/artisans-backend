@@ -78,21 +78,6 @@ class Api::V1::ProductsController < ApplicationController
     render json: product
   end
 
-  # POST /products
-  # def create
-  #   tags = params[:tags].split(",").map(&:strip).uniq
-  #   # Generate a unique product number
-  #   product_number = generate_product_number
-  
-  #   # Create the product with the parsed tags and the generated product number
-  #   @product = Product.new(product_params.merge(tags: tags, product_number: product_number))
-  
-  #   if @product.save
-  #     render json: @product, status: :created
-  #   else
-  #     render json: @product.errors, status: :unprocessable_entity
-  #   end
-  # end
 
   def create
     if params[:tags].present? && !params[:tags].empty?
@@ -121,14 +106,69 @@ class Api::V1::ProductsController < ApplicationController
     user.attributes.merge('wish_list' => wish_list)
   end
 
-  # PATCH/PUT /products/1
-  # def update
-  #   if @product.update(product_params)
-  #     render json: @product
-  #   else
-  #     render json: @product.errors, status: :unprocessable_entity
-  #   end
-  # end
+  def send_download_link
+    product = Product.find(params[:id])
+    recipient_email = params[:email]
+    recipient_name = params[:name]
+  
+    unless recipient_email.present? && recipient_name.present?
+      return render json: { error: "Name and email are required" }, status: 400
+    end
+  
+    # Generate JWT token
+    token = JWT.encode(
+      {
+        product_id: product.id,
+        exp: 7.days.from_now.to_i
+      },
+      Rails.application.secret_key_base,
+      "HS256"
+    )
+  
+    download_url = "#{request.base_url}/api/v1/products/#{product.id}/download?token=#{token}"
+    expires_at = 7.days.from_now.iso8601
+  
+    begin
+      send_mailjet_email(recipient_email, recipient_name, product.name, download_url)
+      
+      render json: {
+        success: true,
+        order: {
+          download_url: download_url,
+          expires_at: expires_at
+        }
+      }
+    rescue => e
+      render json: { success: false, error: "Failed to send email: #{e.message}" }, status: 500
+    end
+  end
+  
+
+  def download
+    token = params[:token]
+  
+    begin
+      decoded = JWT.decode(token, Rails.application.secret_key_base, true, algorithm: "HS256")
+      product_id = decoded[0]["product_id"]
+    rescue JWT::ExpiredSignature
+      return render json: { error: "Download link expired" }, status: 401
+    rescue
+      return render json: { error: "Invalid token" }, status: 401
+    end
+  
+    product = Product.find(product_id)
+  
+    if product.download_file.present?
+      # Generate a signed Cloudinary URL valid for 7 days
+      download_url = product.download_file.url(expire: 7.days.to_i, attachment: true)
+      redirect_to download_url, allow_other_host: true
+    else
+      render json: { error: "No downloadable file for this product" }, status: 404
+    end
+  end
+  
+
+  
 
   def update
     # Retrieve the existing product tags
@@ -162,9 +202,27 @@ class Api::V1::ProductsController < ApplicationController
       product_number
     end
 
+    def send_mailjet_email(email, name, product_name, download_url)
+      Mailjet.configure do |config|
+        config.api_key = ENV['APP_API_KEY']
+        config.secret_key = ENV['APP_SECRET_KEY']
+        config.api_version = 'v3.1'
+      end
+  
+      Mailjet::Send.create(messages: [
+        {
+          'From' => { 'Email' => 'udegbue69@gmail.com', 'Name' => 'Artisans Hub' },
+          'To' => [{ 'Email' => email, 'Name' => name }],
+          'Subject' => "Your Download Link for #{product_name}",
+          'TextPart' => "Hi #{name},\n\nHere is your download link for #{product_name}: #{download_url}\n\nNote: This link expires in 7 days.",
+          'HTMLPart' => "<p>Hi #{name},</p><p>Here is your download link for <strong>#{product_name}</strong>:</p><p><a href='#{download_url}'>Download Now</a></p><p>Note: This link expires in 7 days.</p>"
+        }
+      ])
+    end
+
     # Only allow a list of trusted parameters through.
     def product_params
-      params.permit(:name, :description, :price, :category, :quantity, :user_id, :sold_by, :contact_number, :pictureOne, :pictureTwo, :pictureThree, :pictureFour, :product_number, tags: [])
+      params.permit(:name, :description, :price, :category, :download_file, :quantity, :user_id, :sold_by, :contact_number, :pictureOne, :pictureTwo, :pictureThree, :pictureFour, :product_number, tags: [])
     end    
 end
 

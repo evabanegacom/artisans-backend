@@ -26,6 +26,12 @@ Rails.application.routes.draw do
           get 'get_product_by_product_number'
           get 'get_picture_to_edit'
         end
+
+        member do
+          post 'send_download_link'
+          get 'download'
+        end
+        
       end
     end
   end
