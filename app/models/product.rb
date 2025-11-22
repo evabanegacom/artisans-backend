@@ -7,7 +7,9 @@ class Product < ApplicationRecord
   validates :sold_by, presence: true
   validates :contact_number, presence: true
   validates :product_number, presence: true
+  has_many :sales
   mount_uploader :pictureOne, AvatarUploader
+  mount_uploader :download_file, DownloadFileUploader
   mount_uploader :pictureTwo, AvatarUploader
   mount_uploader :pictureThree, AvatarUploader
   mount_uploader :pictureFour, AvatarUploader

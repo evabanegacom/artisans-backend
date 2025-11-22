@@ -57,8 +57,8 @@ class Api::V1::PasswordsController < ApplicationController
 
   def send_password_reset_email(user)
     Mailjet.configure do |config|
-      config.api_key = ENV['APP_API_KEY'] || 'd531ec7b0745a031ceae938c4730e889'
-      config.secret_key = ENV['APP_SECRET_KEY'] || '0ca4ac8ba4e43cf761f3a9bc07df7a45'
+      config.api_key = ENV['APP_MAILJET_API_KEY'] || 'd531ec7b0745a031ceae938c4730e889'
+      config.secret_key = ENV['APP_MAILJET_SECRET_KEY'] || '0ca4ac8ba4e43cf761f3a9bc07df7a45'
       config.api_version = 'v3.1' # or your preferred Mailjet API version
     end
     # Replace with your Mailjet sender email and name
