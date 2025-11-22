@@ -25,6 +25,7 @@ Rails.application.routes.draw do
           get 'products_by_storename'
           get 'get_product_by_product_number'
           get 'get_picture_to_edit'
+          get 'sales_by_seller'
         end
 
         member do

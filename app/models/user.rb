@@ -3,7 +3,7 @@ class User < ApplicationRecord
     
     mount_uploader :avatar, AvatarUploader
     has_many :products, dependent: :destroy
-    
+    has_many :sales
     validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
     validates :password, presence: true, length: { minimum: 8 }, on: :create
     validates :store_name, uniqueness: true, allow_nil: true

@@ -19,6 +19,8 @@ gem "puma", "~> 5.0"
 # gem "redis", "~> 4.0"
 gem 'jwt', '~> 2.2.2'
 
+gem "kaminari"
+
 gem 'httparty'
 
 gem 'uuid', '~> 2.3', '>= 2.3.9'
