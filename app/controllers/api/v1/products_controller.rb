@@ -1,5 +1,7 @@
 class Api::V1::ProductsController < ApplicationController
   require 'securerandom'
+  require 'cgi'
+
   before_action :set_product, only: %i[ show update destroy send_download_link ]
 
   # GET /products
@@ -417,9 +419,12 @@ class Api::V1::ProductsController < ApplicationController
         config.api_version  = 'v3.1'
       end
     
-      amount_formatted = amount ? ActionController::Base.helpers.number_to_currency(amount) : 'N/A'
+      # amount_formatted = amount ? ActionController::Base.helpers.number_to_currency(amount) : 'N/A'
+      amount_formatted = amount ? ActionController::Base.helpers.number_to_currency(amount, unit: "₦", separator: ".", delimiter: ",", precision: 2) : 'N/A'
+
       sale_ref         = sale_id || '–'
       sale_date        = Time.current.strftime("%B %d, %Y at %I:%M %p")
+      store_url = "https://artisans-hub.netlify.app/#{CGI.escape(seller_name.to_s.strip)}/sales"
     
       text_part = <<~TEXT
         Hi #{seller_name},
@@ -469,7 +474,7 @@ class Api::V1::ProductsController < ApplicationController
         </table>
     
         <p style="margin-top:30px;">
-          <a href="https://yourdomain.com/seller/dashboard" 
+        <a href="#{store_url}"
              style="background:#27ae60; color:white; padding:12px 24px; text-decoration:none; border-radius:5px;">
             View All Sales
           </a>
