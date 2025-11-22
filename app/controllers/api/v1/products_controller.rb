@@ -271,9 +271,9 @@ class Api::V1::ProductsController < ApplicationController
     end
   
     # Prevent multiple downloads (optional: allow multiple if needed)
-    if sale.status == "completed"
-      return render json: { error: "This download link has already been used" }, status: 410
-    end
+    # if sale.status == "completed"
+    #   return render json: { error: "This download link has already been used" }, status: 410
+    # end
   
     if product.download_file.present?
       # Update sale to completed
