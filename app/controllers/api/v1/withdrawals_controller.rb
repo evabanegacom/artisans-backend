@@ -1,106 +1,67 @@
 # app/controllers/api/v1/withdrawals_controller.rb
 class Api::V1::WithdrawalsController < ApplicationController
-    before_action :authenticate_user_from_token!
   
-    def create
-      amount = params[:amount].to_d
+  def create
+    amount = params[:amount].to_d
   
-      # Minimum withdrawal
-      if amount < 1000
-        return render json: { error: "Minimum withdrawal is ₦1,000" }, status: :bad_request
-      end
+    # Minimum withdrawal
+    if amount < 1000
+      return render json: { error: "Minimum withdrawal is ₦1,000" }, status: :bad_request
+    end
   
-      if @user.wallet.balance < amount
-        return render json: { error: "Insufficient balance" }, status: :unprocessable_entity
-      end
+    if @user.wallet.balance < amount
+      return render json: { error: "Insufficient balance" }, status: :unprocessable_entity
+    end
   
-      # Get or create Paystack recipient
-      recipient_code = ensure_paystack_recipient
+    # Get or create Paystack recipient
+    recipient_code = ensure_paystack_recipient
   
-      # Initiate transfer from your Paystack balance
-      response = HTTParty.post(
-        "https://api.paystack.co/transfer",
-        body: {
-          source: "balance",
-          amount: (amount * 100).to_i, # in kobo
-          recipient: recipient_code,
-          reason: "Marketplace Payout",
-          reference: "wd_#{SecureRandom.hex(8)}"
-        }.to_json,
-        headers: paystack_headers
+    # Initiate transfer from your Paystack balance
+    response = HTTParty.post(
+      "https://api.paystack.co/transfer",
+      body: {
+        source: "balance",
+        amount: (amount * 100).to_i, # kobo
+        recipient: recipient_code,
+        reason: "Marketplace Payout",
+        reference: "wd_#{SecureRandom.hex(8)}"
+      }.to_json,
+      headers: paystack_headers
+    )
+  
+    if response.success? && response["status"] == true
+      data = response["data"]
+  
+      # Deduct from wallet
+      @user.wallet.update!(balance: @user.wallet.balance - amount)
+  
+      # Record withdrawal
+      Withdrawal.create!(
+        user_id: @user.id,
+        amount: amount,
+        status: data["status"], 
+        paystack_ref: data["reference"],
+        paystack_status: data["status"]
       )
   
-      if response.success? && response["status"] == true
-        data = response["data"]
+      # 📧 SEND EMAIL IMMEDIATELY WHEN WITHDRAWAL IS CREATED
+      WithdrawalMailer.send_withdrawal_summary(@user)
   
-        # Deduct from wallet
-        @user.wallet.update!(balance: @user.wallet.balance - amount)
+      render json: {
+        success: true,
+        message: "Withdrawal initiated!",
+        reference: data["reference"],
+        status: data["status"]
+      }, status: :created
   
-        # Record withdrawal
-        Withdrawal.create!(
-          user_id: @user.id,
-          amount: amount,
-          status: data["status"], # "success", "otp", or "failed"
-          paystack_ref: data["reference"],
-          paystack_status: data["status"]
-        )
-  
-        render json: {
-          success: true,
-          message: "Withdrawal initiated!",
-          reference: data["reference"],
-          status: data["status"]
-        }, status: :created
-  
-      else
-        error = response["message"] || "Transfer failed"
-        render json: { error: error }, status: :unprocessable_entity
-      end
+    else
+      error = response["message"] || "Transfer failed"
+      render json: { error: error }, status: :unprocessable_entity
     end
-
-    def show
-        wallet = @user.wallet
-        pending_sales = @user.sales
-                             .where("payable_at > ? AND wallet_credited_at IS NULL", Time.current)
-    
-        available_balance = wallet.balance.to_f
-        pending_balance   = pending_sales.sum(:amount).to_f
-    
-        render json: {
-          available_balance: available_balance,
-          pending_balance: pending_balance,
-          total_balance: available_balance + pending_balance,
-          bank_details: {
-            account_name: @user.account_name,
-            account_number: @user.account_number&.gsub(/\d(?=\d{4})/, '*'), # mask number
-            bank_name: bank_name_from_code(@user.bank_code),
-            bank_code: @user.bank_code
-          }.compact, # removes nil fields
-          pending_sales: pending_sales.select(:id, :amount, :payable_at).map do |sale|
-            {
-              id: sale.id,
-              amount: sale.amount.to_f,
-              payable_at: sale.payable_at.iso8601,
-              hours_left: ((sale.payable_at - Time.current) / 1.hour).ceil
-            }
-          end
-        }, status: :ok
-      end
+  end
+  
     
       private
-    
-      def authenticate_user_from_token!
-        auth_header = request.headers["Authorization"]
-        return render json: { error: "Token missing" }, status: :unauthorized unless auth_header&.start_with?("Bearer ")
-    
-        token = auth_header.split(" ").last
-        begin
-          payload = JWT.decode(token, Rails.application.secret_key_base, true, algorithm: "HS256").first
-          @user = User.find(payload["user_id"])
-        rescue JWT::DecodeError, JWT::ExpiredSignature, ActiveRecord::RecordNotFound
-          return render json: { error: "Invalid or expired token" }, status: :unauthorized
-        end
-      end
     
       # Optional: Convert bank code to name
       def bank_name_from_code(code)

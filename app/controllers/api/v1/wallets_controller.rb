@@ -45,13 +45,27 @@ class Api::V1::WalletsController < ApplicationController
       "030" => "Heritage Bank",
       "082" => "Keystone Bank",
       "076" => "Polaris Bank",
-      "039" => "Stanbic IBTC",
+      "221" => "Providus Bank",
       "232" => "Sterling Bank",
       "032" => "Union Bank",
       "033" => "UBA",
       "215" => "Unity Bank",
       "035" => "Wema Bank",
-      "057" => "Zenith Bank"
+      "057" => "Zenith Bank",
+      "565" => "OPay (Paycom)",
+      "999" => "Moniepoint MFB",
+      "100" => "Kuda MFB",
+      "999991" => "PalmPay",
+      "090175" => "Rubies Bank",
+      "090267" => "Parallex Bank",
+      "103" => "Hope PSBank",
+      "301" => "Jaiz Bank",
+      "090281" => "VFD Microfinance Bank",
+      "090115" => "Lotus Bank",
+      "090286" => "Sparkle MFB",
+      "102" => "Globus Bank",
+      "101" => "Titan Trust Bank"
     }[code]
   end
+  
 end
