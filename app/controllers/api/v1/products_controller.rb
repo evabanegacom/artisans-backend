@@ -1,6 +1,8 @@
 class Api::V1::ProductsController < ApplicationController
   require 'securerandom'
   require 'cgi'
+  skip_before_action :authenticate_user_from_token!
+  skip_before_action :credit_available_payouts
 
   before_action :set_product, only: %i[ show update destroy send_download_link ]
 
@@ -281,7 +283,8 @@ class Api::V1::ProductsController < ApplicationController
       # Update sale to completed
       sale.update!(
         status: "completed",
-        downloaded_at: Time.current
+        downloaded_at: Time.current,
+        payable_at: 24.hours.from_now
       )
   
       # Optional: Increment product sales count

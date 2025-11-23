@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_11_22_063450) do
+ActiveRecord::Schema[7.0].define(version: 2025_11_23_110657) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -48,6 +48,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_11_22_063450) do
     t.string "token_used", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "payable_at"
+    t.datetime "wallet_credited_at"
     t.index ["buyer_email"], name: "index_sales_on_buyer_email"
     t.index ["product_id", "created_at"], name: "index_sales_on_product_id_and_created_at"
     t.index ["product_id"], name: "index_sales_on_product_id"
@@ -72,9 +74,24 @@ ActiveRecord::Schema[7.0].define(version: 2025_11_22_063450) do
     t.string "state"
     t.string "store_name"
     t.string "mobile"
+    t.string "account_name"
+    t.string "account_number"
+    t.string "bank_code"
+    t.string "paystack_recipient_code"
+    t.index ["account_number"], name: "index_users_on_account_number"
+    t.index ["paystack_recipient_code"], name: "index_users_on_paystack_recipient_code", unique: true
+  end
+
+  create_table "wallets", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.decimal "balance", precision: 10, scale: 2, default: "0.0"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_wallets_on_user_id"
   end
 
   add_foreign_key "products", "users"
   add_foreign_key "sales", "products"
   add_foreign_key "sales", "users"
+  add_foreign_key "wallets", "users"
 end

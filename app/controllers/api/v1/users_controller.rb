@@ -1,5 +1,8 @@
 require 'mailjet'
 class Api::V1::UsersController < ApplicationController
+  skip_before_action :authenticate_user_from_token!, only: [:create, :sign_in, :generate_activation_token]
+  skip_before_action :credit_available_payouts, only: [:create, :sign_in, :generate_activation_token]
+
   before_action :set_user, only: %i[ show update destroy ]
 
   # GET /users
