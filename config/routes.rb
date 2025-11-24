@@ -68,6 +68,7 @@ Rails.application.routes.draw do
       post   '/verify_bank',               to: 'users#verify_bank'      # → Paystack name verification
       post   '/update_bank',               to: 'users#update_bank'      # → Save bank details
       post   '/withdraw',                  to: 'withdrawals#create'     # → Initiate payout
+      get    'paystack/banks',             to: 'users#banks'
 
       # === PRODUCTS ===
       resources :products do

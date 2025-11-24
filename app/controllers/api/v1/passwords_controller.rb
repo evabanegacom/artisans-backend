@@ -57,8 +57,8 @@ class Api::V1::PasswordsController < ApplicationController
 
   def send_password_reset_email(user)
     Mailjet.configure do |config|
-      config.api_key = ENV['APP_MAILJET_API_KEY'] || 'd531ec7b0745a031ceae938c4730e889'
-      config.secret_key = ENV['APP_MAILJET_SECRET_KEY'] || '0ca4ac8ba4e43cf761f3a9bc07df7a45'
+      config.api_key = ENV['APP_MAILJET_API_KEY']
+      config.secret_key = ENV['APP_MAILJET_SECRET_KEY']
       config.api_version = 'v3.1' # or your preferred Mailjet API version
     end
     # Replace with your Mailjet sender email and name
@@ -73,7 +73,7 @@ class Api::V1::PasswordsController < ApplicationController
     # The rest of your code...
 
     variable_params = {
-      'reset_link' => "https://your-app-domain.com/reset-password/#{user.reset_token}"
+      'reset_link' => "https://https://fin-man.fly.dev/api/v1/reset-password/#{user.reset_token}"
       # Add any other variables you want to include in your email template
     }
 

@@ -27,7 +27,6 @@ class ApplicationController < ActionController::Base
       
           # Find the user by user_id in the payload
           @current_user = User.find_by(id: payload['user_id'])
-          puts "Authenticated user: #{@current_user&.email}"
       
           # Return 401 if user not found
           return render json: { error: "Invalid user" }, status: :unauthorized unless @current_user
@@ -42,23 +41,23 @@ class ApplicationController < ActionController::Base
     # This is your magic 24-hour payout system (no jobs!)
     def credit_available_payouts
       return unless @current_user&.seller?
-  
+    
       due_sales = @current_user.sales
                                .where("payable_at <= ? AND wallet_credited_at IS NULL", Time.current)
-  
+      puts due_sales.to_sql
+    
       return if due_sales.none?
-  
+    
       total_amount = due_sales.sum(:amount)
-  
+    
       ApplicationRecord.transaction do
         @current_user.wallet.update!(balance: @current_user.wallet.balance + total_amount)
         due_sales.update_all(wallet_credited_at: Time.current)
       end
-  
-      # Optional: Log or notify
+    
       Rails.logger.info "Credited ₦#{total_amount} to #{@current_user.email}'s wallet"
     end
-  
+    
     # Helper so you can use current_user in other controllers
     def current_user
       @current_user

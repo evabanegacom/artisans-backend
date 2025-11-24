@@ -2,7 +2,7 @@ require 'mailjet'
 class Api::V1::UsersController < ApplicationController
   skip_before_action :authenticate_user_from_token!, only: [:create, :sign_in, :generate_activation_token]
   skip_before_action :credit_available_payouts, only: [:create, :sign_in, :generate_activation_token]
-
+  
   before_action :set_user, only: %i[ show update destroy ]
 
   # GET /users
@@ -42,6 +42,106 @@ end
 def generate_jwt_token(user)
   payload = { user_id: user.id, exp: 1.day.from_now.to_i, email: user.email, name: user.name, avatar: user.avatar, activated: user.activated, seller: user.seller, store_name: user.store_name, mobile: user.mobile, state: user.state}
   JWT.encode(payload, Rails.application.secrets.secret_key_base)
+end
+
+
+def update_bank
+  @user = @current_user
+
+  unless @user
+    return render json: { error: "User not found or not logged in" }, status: :unauthorized
+  end
+
+  if params[:account_name].present? && params[:account_number].present? && params[:bank_code].present?
+    verification = verify_with_paystack(params[:account_number], params[:bank_code])
+    unless verification[:success]
+      return render json: { error: "Bank account verification failed. Please check your details." }, status: :unprocessable_entity
+    end
+
+    paystack_name = verification[:account_name].downcase.strip
+    submitted_name = params[:account_name].downcase.strip
+
+    unless paystack_name.include?(submitted_name) || submitted_name.include?(paystack_name)
+      return render json: { error: "Account name does not match. Paystack returned: #{verification[:account_name]}" }, status: :unprocessable_entity
+    end
+  end
+
+  if @user.update(
+    account_name: params[:account_name]&.strip,
+    account_number: params[:account_number]&.strip,
+    bank_code: params[:bank_code]&.strip,
+    paystack_recipient_code: nil
+  )
+    render json: {
+      success: true,
+      message: "Bank details saved successfully!",
+      bank_details: {
+        account_name: @user.account_name,
+        account_number: @user.account_number&.gsub(/\d(?=\d{4})/, '*'), # masked
+        bank_name: bank_name_from_code(@user.bank_code)
+      }
+    }, status: :ok
+  else
+    render json: { error: "Failed to save bank details", details: @user.errors.full_messages }, status: :unprocessable_entity
+  end
+end
+
+
+# app/controllers/api/v1/users_controller.rb
+def banks
+  # Try to read from cache first
+  banks = Rails.cache.fetch("paystack_banks", expires_in: 12.hours) do
+    secret_key = ENV['PAYSTACK_SECRET_KEY']
+    response = HTTParty.get(
+      "https://api.paystack.co/bank",
+      headers: { "Authorization" => "Bearer #{secret_key}" }
+    )
+    if response.success?
+      response["data"].map { |b| { name: b["name"], code: b["code"] } }
+    else
+      [] # fallback to empty array
+    end
+  end
+
+  if banks.any?
+    render json: banks
+  else
+    render json: { error: "Failed to fetch banks" }, status: :bad_request
+  end
+end
+
+def bank_name_from_code(code)
+  banks = Rails.cache.fetch("paystack_banks") do
+    secret_key = ENV['PAYSTACK_SECRET_KEY']
+    response = HTTParty.get(
+      "https://api.paystack.co/bank",
+      headers: { "Authorization" => "Bearer #{secret_key}" }
+    )
+    response.success? ? response["data"] : []
+  end
+
+  bank = banks.find { |b| b["code"] == code }
+  bank ? bank["name"] : "Unknown Bank"
+end
+
+
+def verify_with_paystack(account_number, bank_code)
+  secret = ENV["PAYSTACK_SECRET_KEY"].presence
+
+response = HTTParty.get(
+  "https://api.paystack.co/bank/resolve",
+  query: { account_number: account_number, bank_code: bank_code },
+  headers: { "Authorization" => "Bearer #{secret}" }
+)
+Rails.logger.info "PAYSTACK RESPONSE: #{response.body}"
+Rails.logger.info "PAYSTACK STATUS: #{response.code}"
+
+
+  if response.success? && response["status"] == true
+    { success: true, account_name: response["data"]["account_name"] }
+  else
+    { success: false, error: response["message"] || "Verification failed" }
+  end
 end
 
 # def logged_in_user
@@ -151,8 +251,8 @@ end
 
     def send_activation_email(user, html_template_path)
       Mailjet.configure do |config|
-        config.api_key = ENV['APP_MAILJET_API_KEY'] || 'd531ec7b0745a031ceae938c4730e889'
-        config.secret_key = ENV['APP_MAILJET_SECRET_KEY'] || '0ca4ac8ba4e43cf761f3a9bc07df7a45'
+        config.api_key = ENV['APP_MAILJET_API_KEY']
+        config.secret_key = ENV['APP_MAILJET_SECRET_KEY']
         config.api_version = 'v3.1'
       end
     
