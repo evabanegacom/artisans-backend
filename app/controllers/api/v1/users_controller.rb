@@ -157,7 +157,7 @@ end
       end
     
       # Replace with your Mailjet sender email and name
-      sender_email = 'udegbue69@gmail.com'
+      sender_email = 'support@artisanshub.net'
       sender_name = 'Digital Art'
       html_content = File.read(html_template_path)
       

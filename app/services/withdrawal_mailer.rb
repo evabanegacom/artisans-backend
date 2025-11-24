@@ -22,7 +22,7 @@ class WithdrawalMailer
               Email: "no-reply@artisans-hub.com",
               Name: "Artisans Hub"
             },
-            To: [{ Email: "udegbue69@gmail.com" }],
+            To: [{ Email: "support@artisanshub.net" }],
             Subject: "📌 Withdrawal Request Summary – #{user.store_name}",
             HTMLPart: <<~HTML
               <h2>New Withdrawal Request</h2>

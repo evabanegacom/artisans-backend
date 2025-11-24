@@ -405,7 +405,7 @@ class Api::V1::ProductsController < ApplicationController
   
       Mailjet::Send.create(messages: [
         {
-          'From' => { 'Email' => 'udegbue69@gmail.com', 'Name' => 'Artisans Hub' },
+          'From' => { 'Email' => 'support@artisanshub.net', 'Name' => 'Artisans Hub' },
           'To' => [{ 'Email' => email, 'Name' => name }],
           'Subject' => "Your Download Link for #{product_name}",
           'TextPart' => "Hi #{name},\n\nHere is your download link for #{product_name}: #{download_url}\n\nNote: This link expires in 7 days.",
@@ -427,7 +427,7 @@ class Api::V1::ProductsController < ApplicationController
 
       sale_ref         = sale_id || '–'
       sale_date        = Time.current.strftime("%B %d, %Y at %I:%M %p")
-      store_url = "https://artisans-hub.netlify.app/#{CGI.escape(seller_name.to_s.strip)}/sales"
+      store_url = "https://artisanshub.net//#{CGI.escape(seller_name.to_s.strip)}/sales"
     
       text_part = <<~TEXT
         Hi #{seller_name},
@@ -488,7 +488,7 @@ class Api::V1::ProductsController < ApplicationController
       HTML
     
       Mailjet::Send.create(messages: [{
-        'From' => { 'Email' => 'udegbue69@gmail.com', 'Name' => 'Artisans Hub' },
+        'From' => { 'Email' => 'support@artisanshub.net', 'Name' => 'Artisans Hub' },
         'To'   => [{ 'Email' => seller_email, 'Name' => seller_name }],
         'Subject' => "New Sale! #{product_name} just sold",
         'TextPart' => text_part.strip,
