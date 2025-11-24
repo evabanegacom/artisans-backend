@@ -398,8 +398,8 @@ class Api::V1::ProductsController < ApplicationController
 
     def send_mailjet_email(email, name, product_name, download_url)
       Mailjet.configure do |config|
-        config.api_key = ENV['APP_MAILJET_API_KEY'] || 'd531ec7b0745a031ceae938c4730e889'
-        config.secret_key = ENV['APP_MAILJET_SECRET_KEY'] || '0ca4ac8ba4e43cf761f3a9bc07df7a45'
+        config.api_key = ENV['APP_MAILJET_API_KEY']
+        config.secret_key = ENV['APP_MAILJET_SECRET_KEY']
         config.api_version = 'v3.1'
       end
   
