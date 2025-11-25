@@ -1,7 +1,6 @@
 class Api::V1::ProductsController < ApplicationController
   require 'securerandom'
   require 'cgi'
-  skip_before_action :authenticate_user_from_token!
   skip_before_action :credit_available_payouts
 
   before_action :set_product, only: %i[ show update destroy send_download_link ]
@@ -110,55 +109,6 @@ class Api::V1::ProductsController < ApplicationController
     user.attributes.merge('wish_list' => wish_list)
   end
 
-  # def send_download_link
-  #   product = @product
-  #   recipient_email = params[:email]
-  #   recipient_name = params[:name]
-  
-  #   unless recipient_email.present? && recipient_name.present?
-  #     return render json: { error: "Name and email are required" }, status: 400
-  #   end
-  
-  #   # Generate JWT token
-  #   token = JWT.encode(
-  #     {
-  #       product_id: product.id,
-  #       exp: 7.days.from_now.to_i
-  #     },
-  #     Rails.application.secret_key_base,
-  #     "HS256"
-  #   )
-  
-  #   download_url = "#{request.base_url}/api/v1/products/#{product.id}/download?token=#{token}"
-  #   expires_at = 7.days.from_now.iso8601
-
-  #   sale = Sale.create!(
-  #     product: product,
-  #     user: product.user,  # seller
-  #     buyer_name: recipient_name,
-  #     buyer_email: recipient_email,
-  #     amount: product.price,  # Assuming price is the purchase amount
-  #     currency: "USD",  # Make dynamic if needed (e.g., params[:currency])
-  #     status: "pending",  # Starts as pending, update to completed on download
-  #     token_used: token  # Store token for later verification
-  #   )
-  
-  #   begin
-  #     send_mailjet_email(recipient_email, recipient_name, product.name, download_url)
-      
-  #     render json: {
-  #       success: true,
-  #       order: {
-  #         download_url: download_url,
-  #         expires_at: expires_at
-  #       }
-  #     }
-  #   rescue => e
-  #     render json: { success: false, error: "Failed to send email: #{e.message}" }, status: 500
-  #   end
-  # end
-
-
   def send_download_link
     product = @product  # from before_action :set_product
     recipient_email = params[:email]&.strip
@@ -228,31 +178,6 @@ class Api::V1::ProductsController < ApplicationController
       }, status: :unprocessable_entity
     end
   end
-  
-
-  # def download
-  #   token = params[:token]
-  
-  #   begin
-  #     decoded = JWT.decode(token, Rails.application.secret_key_base, true, algorithm: "HS256")
-  #     product_id = decoded[0]["product_id"]
-  #   rescue JWT::ExpiredSignature
-  #     return render json: { error: "Download link expired" }, status: 401
-  #   rescue
-  #     return render json: { error: "Invalid token" }, status: 401
-  #   end
-  
-  #   product = Product.find(product_id)
-  
-  #   if product.download_file.present?
-  #     # Generate a signed Cloudinary URL valid for 7 days
-  #     download_url = product.download_file.url(expire: 7.days.to_i, attachment: true)
-  #     redirect_to download_url, allow_other_host: true
-  #   else
-  #     render json: { error: "No downloadable file for this product" }, status: 404
-  #   end
-  # end
-
 
   def download
     token = params[:token]
@@ -427,7 +352,7 @@ class Api::V1::ProductsController < ApplicationController
 
       sale_ref         = sale_id || '–'
       sale_date        = Time.current.strftime("%B %d, %Y at %I:%M %p")
-      store_url = "https://artisanshub.net//#{CGI.escape(seller_name.to_s.strip)}/sales"
+      store_url = "https://artisanshub.net/#{CGI.escape(seller_name.to_s.strip)}/sales"
     
       text_part = <<~TEXT
         Hi #{seller_name},
@@ -503,11 +428,3 @@ class Api::V1::ProductsController < ApplicationController
     end    
 end
 
-# {
-#   "name": "Product 1",
-#   "description": "Product 1 description",
-#   "price": 100,
-#   "category": "Electronics",
-#   "quantity": 10,
-#   "user_id": 1
-# }

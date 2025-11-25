@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_11_23_110657) do
+ActiveRecord::Schema[7.0].define(version: 2025_11_24_235536) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
   create_table "products", force: :cascade do |t|
@@ -32,7 +33,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_11_23_110657) do
     t.string "product_number"
     t.string "tags", default: [], array: true
     t.string "download_file"
+    t.uuid "uuid", default: -> { "gen_random_uuid()" }, null: false
     t.index ["user_id"], name: "index_products_on_user_id"
+    t.index ["uuid"], name: "index_products_on_uuid", unique: true
   end
 
   create_table "sales", force: :cascade do |t|
@@ -78,8 +81,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_11_23_110657) do
     t.string "account_number"
     t.string "bank_code"
     t.string "paystack_recipient_code"
+    t.uuid "uuid", default: -> { "gen_random_uuid()" }, null: false
     t.index ["account_number"], name: "index_users_on_account_number"
     t.index ["paystack_recipient_code"], name: "index_users_on_paystack_recipient_code", unique: true
+    t.index ["uuid"], name: "index_users_on_uuid", unique: true
   end
 
   create_table "wallets", force: :cascade do |t|

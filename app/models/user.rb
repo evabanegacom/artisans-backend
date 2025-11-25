@@ -10,6 +10,11 @@ class User < ApplicationRecord
     validates :mobile, uniqueness: true, allow_nil: true
     has_one :wallet, dependent: :destroy
     after_commit :create_wallet_if_missing, on: :create
+    before_create :set_uuid
+
+    def to_param
+      uuid
+    end
     
     def generate_reset_token!
         self.reset_token = SecureRandom.urlsafe_base64
@@ -38,5 +43,9 @@ class User < ApplicationRecord
       private 
       def create_wallet_if_missing
         create_wallet(balance: 0) unless wallet.present?
+      end
+
+      def set_uuid
+        self.uuid ||= SecureRandom.uuid
       end
 end

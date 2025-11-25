@@ -1,6 +1,6 @@
 require 'mailjet'
+require 'securerandom'
 class Api::V1::UsersController < ApplicationController
-  skip_before_action :authenticate_user_from_token!, only: [:create, :sign_in, :generate_activation_token]
   skip_before_action :credit_available_payouts, only: [:create, :sign_in, :generate_activation_token]
   
   before_action :set_user, only: %i[ show update destroy ]
@@ -19,30 +19,58 @@ class Api::V1::UsersController < ApplicationController
 
   # POST /users
   # POST /users
+# POST /users
 def create
   user = User.new(user_params)
-
   if user.save
-    user.update_columns(activation_token: SecureRandom.urlsafe_base64)
-    user.update_columns(activation_token_expires_at: 2.days.from_now)
-    # Generate a JWT token for the user
+    user.update_columns(
+      activation_token: SecureRandom.urlsafe_base64,
+      activation_token_expires_at: 2.days.from_now
+    )
+
+    # Set current_user globally
+    @current_user = user
+
     jwt_token = generate_jwt_token(user)
 
-    # Send activation email
+    # Define the email template path
     html_template_path = File.expand_path('../../../../views/user_mailer/activation_email.html.erb', __FILE__)
+
+    # Send activation email
     send_activation_email(user, html_template_path)
 
-    render json: { message: 'Account created check your email for activation instructions.', jwt_token: jwt_token }, status: :created
+    render json: { user: user, jwt_token: jwt_token, message: "Validation email sent to your email address" }, status: :created
   else
     render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
   end
 end
 
-# Generate JWT token for user
-def generate_jwt_token(user)
-  payload = { user_id: user.id, exp: 1.day.from_now.to_i, email: user.email, name: user.name, avatar: user.avatar, activated: user.activated, seller: user.seller, store_name: user.store_name, mobile: user.mobile, state: user.state}
-  JWT.encode(payload, Rails.application.secrets.secret_key_base)
+
+# POST /sign_in
+def sign_in
+  user = User.find_by(email: params[:email])
+  if user&.authenticate(params[:password])
+    @current_user = user # globally available now
+    jwt_token = generate_jwt_token(user)
+    render json: { user: user, jwt_token: jwt_token, message: "Signed in" }, status: :ok
+  else
+    render json: { error: "Invalid credentials" }, status: :unauthorized
+  end
 end
+# Generate JWT token for user
+
+def generate_jwt_token(user)
+  payload = {
+    user_id: user.uuid,          # now using UUID
+    jti: SecureRandom.uuid,      # unique token identifier
+    exp: 1.day.from_now.to_i     # expiry timestamp
+  }
+
+  secret = ENV['JWT_SECRET']
+  JWT.encode(payload, secret, 'HS256')
+end
+
+
 
 
 def update_bank
@@ -153,16 +181,6 @@ end
 # end
 
 # POST /sign_in
-def sign_in
-  user = User.find_by(email: params[:email])
-
-  if user && user.authenticate(params[:password])
-    jwt_token = generate_jwt_token(user)
-    render json: { message: 'Sign-in successful.', jwt_token: jwt_token, status: :ok }
-  else
-    render json: { error: 'Invalid credentials.' }, status: :unauthorized
-  end
-end
 
   def activate
     puts "Activation token received: #{params[:token]}"
@@ -227,7 +245,7 @@ end
       # Generate a new JWT token for the updated user
       jwt_token = generate_jwt_token(@user)
       
-      render json: { user: @user, jwt_token: jwt_token }
+      render json: { user: @user, jwt_token: jwt_token, message: "User updated successfully" }
     else
       render json: @user.errors, status: :unprocessable_entity
     end

@@ -16,6 +16,10 @@ class Product < ApplicationRecord
   # Callback to process and set image_urls attribute before saving
   before_save :process_image_urls
 
+  def to_param
+    uuid
+  end
+
   def process_image_urls
     self.image_urls = [pictureOne, pictureTwo, pictureThree, pictureFour].compact.map(&:url)
   end
