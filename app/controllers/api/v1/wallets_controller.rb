@@ -34,38 +34,17 @@ class Api::V1::WalletsController < ApplicationController
   private
 
   def bank_name_from_code(code)
-    {
-      "044" => "Access Bank",
-      "063" => "Access Bank (Diamond)",
-      "050" => "Ecobank",
-      "070" => "Fidelity Bank",
-      "011" => "First Bank",
-      "214" => "FCMB",
-      "058" => "GTBank",
-      "030" => "Heritage Bank",
-      "082" => "Keystone Bank",
-      "076" => "Polaris Bank",
-      "221" => "Providus Bank",
-      "232" => "Sterling Bank",
-      "032" => "Union Bank",
-      "033" => "UBA",
-      "215" => "Unity Bank",
-      "035" => "Wema Bank",
-      "057" => "Zenith Bank",
-      "565" => "OPay (Paycom)",
-      "999" => "Moniepoint MFB",
-      "100" => "Kuda MFB",
-      "999991" => "PalmPay",
-      "090175" => "Rubies Bank",
-      "090267" => "Parallex Bank",
-      "103" => "Hope PSBank",
-      "301" => "Jaiz Bank",
-      "090281" => "VFD Microfinance Bank",
-      "090115" => "Lotus Bank",
-      "090286" => "Sparkle MFB",
-      "102" => "Globus Bank",
-      "101" => "Titan Trust Bank"
-    }[code]
+    banks = Rails.cache.fetch("paystack_banks") do
+      secret_key = ENV['PAYSTACK_SECRET_KEY']
+      response = HTTParty.get(
+        "https://api.paystack.co/bank",
+        headers: { "Authorization" => "Bearer #{secret_key}" }
+      )
+      response.success? ? response["data"] : []
+    end
+  
+    bank = banks.find { |b| b["code"] == code }
+    bank ? bank["name"] : "Unknown Bank"
   end
   
 end

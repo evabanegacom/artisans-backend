@@ -172,14 +172,6 @@ Rails.logger.info "PAYSTACK STATUS: #{response.code}"
   end
 end
 
-# def logged_in_user
-#   if @current_user
-#     render json: { user: @current_user }, status: :ok
-#   else
-#     render json: { error: 'No user logged in.' }, status: :unprocessable_entity
-#   end
-# end
-
 # POST /sign_in
 
   def activate
