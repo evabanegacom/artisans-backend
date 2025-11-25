@@ -11,6 +11,7 @@ class User < ApplicationRecord
     has_one :wallet, dependent: :destroy
     after_commit :create_wallet_if_missing, on: :create
     before_create :set_uuid
+    has_many :withdrawals, dependent: :destroy
 
     def to_param
       uuid
