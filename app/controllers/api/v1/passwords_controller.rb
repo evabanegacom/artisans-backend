@@ -63,7 +63,7 @@ class Api::V1::PasswordsController < ApplicationController
     end
     # Replace with your Mailjet sender email and name
     sender_email = 'support@artisanshub.net'
-    sender_name = 'Digital Art'
+    sender_name = 'Artisans hub'
     html_template_path = File.expand_path('../../../../views/user_mailer/password_reset_email.html.erb', __FILE__)
 
     # Use ERB to render dynamic content

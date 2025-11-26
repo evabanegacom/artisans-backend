@@ -223,9 +223,9 @@ end
         html_template_path = File.expand_path('../../../../views/user_mailer/activation_email.html.erb', __FILE__)
         send_activation_email(user, html_template_path)
 
-        render json: { message: 'New activation token generated. Please check your email for activation instructions.' }, status: :ok
+        render json: { message: 'Please check your email for activation instructions.' }, status: :ok
       else
-        render json: { message: 'User account is still pending activation.' }, status: :unprocessable_entity
+        render json: { message: 'Check your email for activation link.' }, status: :unprocessable_entity
       end
     else
       render json: { error: 'User not found.' }, status: :not_found
@@ -268,7 +268,7 @@ end
     
       # Replace with your Mailjet sender email and name
       sender_email = 'support@artisanshub.net'
-      sender_name = 'Digital Art'
+      sender_name = 'Artisans hub'
       html_content = File.read(html_template_path)
       
       # Use ERB to render dynamic content
