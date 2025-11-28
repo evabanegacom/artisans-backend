@@ -11,7 +11,7 @@ class DownloadFileUploader < CarrierWave::Uploader::Base
       jpg jpeg png gif webp bmp tiff tif svg heic heif avif
 
       # Documents
-      pdf doc docx xls xlsx ppt pptx txt csv rtf odt ods odp
+      pdf doc docx xls xlsx ppt pptx txt csv rtf odt ods odp txt md
 
       # Archives
       zip rar 7z tar gz
