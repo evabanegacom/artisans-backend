@@ -42,7 +42,7 @@ class Api::V1::ProductsController < ApplicationController
   def products_by_category
     @products = Product.where('LOWER(category) = ?', params[:category].downcase)
                        .order(created_at: :desc)
-                       .paginate(page: params[:page], per_page: 1)
+                       .paginate(page: params[:page], per_page: 20)
 
     render json: {
       products: @products.map { |p| safe_product_json(p) },
