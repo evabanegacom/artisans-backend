@@ -106,9 +106,16 @@ class Api::V1::ProductsController < ApplicationController
 
   def update
     if params[:tags].present?
-      params[:tags] = params[:tags].split(",").map(&:strip).uniq
+      params[:tags] =
+        if params[:tags].is_a?(String)
+          params[:tags].split(",").map(&:strip).uniq
+        elsif params[:tags].is_a?(Array)
+          params[:tags].map(&:to_s).map(&:strip).uniq
+        else
+          []
+        end
     end
-
+  
     if @product.update(product_params)
       render json: safe_product_json(@product, seller_view: true, include_images: true)
     else
