@@ -57,6 +57,15 @@ class Api::V1::PasswordsController < ApplicationController
 
   def send_password_reset_email(user)
     Mailjet.configure do |config|
+<<<<<<< HEAD
+      config.api_key = ENV['APP_MAILJET_API_KEY']
+      config.secret_key = ENV['APP_MAILJET_SECRET_KEY']
+      config.api_version = 'v3.1' # or your preferred Mailjet API version
+    end
+    # Replace with your Mailjet sender email and name
+    sender_email = 'support@artisanshub.net'
+    sender_name = 'Artisans hub'
+=======
       config.api_key = ENV['APP_API_KEY'] || 'd531ec7b0745a031ceae938c4730e889'
       config.secret_key = ENV['APP_SECRET_KEY'] || '0ca4ac8ba4e43cf761f3a9bc07df7a45'
       config.api_version = 'v3.1' # or your preferred Mailjet API version
@@ -64,6 +73,7 @@ class Api::V1::PasswordsController < ApplicationController
     # Replace with your Mailjet sender email and name
     sender_email = 'udegbue69@gmail.com'
     sender_name = 'Digital Art'
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
     html_template_path = File.expand_path('../../../../views/user_mailer/password_reset_email.html.erb', __FILE__)
 
     # Use ERB to render dynamic content
@@ -73,7 +83,11 @@ class Api::V1::PasswordsController < ApplicationController
     # The rest of your code...
 
     variable_params = {
+<<<<<<< HEAD
+      'reset_link' => "https://https://fin-man.fly.dev/api/v1/reset-password/#{user.reset_token}"
+=======
       'reset_link' => "https://your-app-domain.com/reset-password/#{user.reset_token}"
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
       # Add any other variables you want to include in your email template
     }
 

@@ -7,6 +7,13 @@
 # Ignore bundler config.
 /.bundle
 
+<<<<<<< HEAD
+# Ignore CarrierWave temporary uploads
+/public/uploads/tmp/*
+!/public/uploads/tmp/.keep
+
+=======
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
@@ -27,3 +34,8 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+<<<<<<< HEAD
+.env
+.env
+=======
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
