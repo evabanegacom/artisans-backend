@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # app/controllers/application_controller.rb
 class ApplicationController < ActionController::Base
     # This runs on every request — auto-credits wallet when 24h escrow is over
@@ -51,3 +52,7 @@ class ApplicationController < ActionController::Base
     end
 
   end
+=======
+class ApplicationController < ActionController::API
+end
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab

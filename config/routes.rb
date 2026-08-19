@@ -1,11 +1,17 @@
+<<<<<<< HEAD
 # config/routes.rb
 Rails.application.routes.draw do
   root 'static#index'
 
+=======
+Rails.application.routes.draw do
+  root 'static#index'
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
   namespace :api do
     namespace :v1 do
       resources :users, only: %i[create index destroy update show]
 
+<<<<<<< HEAD
       # === AUTH & USER ROUTES ===
       post   '/activate',                  to: 'users#activate'
       post   '/sign_in',                   to: 'users#sign_in'
@@ -25,6 +31,21 @@ Rails.application.routes.draw do
       get    'paystack/banks',             to: 'users#banks'
 
       # === PRODUCTS ===
+=======
+      post '/activate', to: 'users#activate'
+
+      get '/user_by_storename', to: 'users#find_user_by_storename'
+      
+      post '/sign_in', to: 'users#sign_in'
+
+      get 'monthly_savings', to: 'aggregates#savings'
+      
+      post 'generate_activation_token', to: 'users#generate_activation_token'
+      # Password reset routes
+      post '/password/reset', to: 'passwords#reset', as: 'reset_password'
+      get '/password/reset/:reset_token', to: 'passwords#edit', as: 'edit_password'
+      put '/password/update', to: 'passwords#update', as: 'update_password'
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
       resources :products do
         collection do
           get 'user_products'
@@ -33,6 +54,7 @@ Rails.application.routes.draw do
           get 'products_by_storename'
           get 'get_product_by_product_number'
           get 'get_picture_to_edit'
+<<<<<<< HEAD
           get 'sales_by_seller'
         end
 
@@ -44,6 +66,10 @@ Rails.application.routes.draw do
 
       # === OTHER ===
       get 'monthly_savings', to: 'aggregates#savings'
+=======
+        end
+      end
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
     end
   end
 end

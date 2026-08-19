@@ -10,9 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema[7.0].define(version: 2025_11_25_082429) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
+=======
+ActiveRecord::Schema[7.0].define(version: 2024_04_05_220835) do
+  # These are extensions that must be enabled in order to support this database
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
   enable_extension "plpgsql"
 
   create_table "products", force: :cascade do |t|
@@ -32,6 +37,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_11_25_082429) do
     t.string "contact_number"
     t.string "product_number"
     t.string "tags", default: [], array: true
+<<<<<<< HEAD
     t.string "download_file"
     t.uuid "uuid", default: -> { "gen_random_uuid()" }, null: false
     t.index ["user_id"], name: "index_products_on_user_id"
@@ -59,6 +65,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_11_25_082429) do
     t.index ["status"], name: "index_sales_on_status"
     t.index ["token_used"], name: "index_sales_on_token_used", unique: true
     t.index ["user_id"], name: "index_sales_on_user_id"
+=======
+    t.index ["user_id"], name: "index_products_on_user_id"
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
   end
 
   create_table "users", force: :cascade do |t|
@@ -77,6 +86,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_11_25_082429) do
     t.string "state"
     t.string "store_name"
     t.string "mobile"
+<<<<<<< HEAD
     t.string "account_name"
     t.string "account_number"
     t.string "bank_code"
@@ -111,4 +121,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_11_25_082429) do
   add_foreign_key "sales", "users"
   add_foreign_key "wallets", "users"
   add_foreign_key "withdrawals", "users"
+=======
+  end
+
+  add_foreign_key "products", "users"
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
 end

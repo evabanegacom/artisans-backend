@@ -121,6 +121,7 @@ GEM
       rdoc
       reline (>= 0.4.2)
     jwt (2.2.3)
+<<<<<<< HEAD
     kaminari (1.2.2)
       activesupport (>= 4.1.0)
       kaminari-actionview (= 1.2.2)
@@ -133,6 +134,8 @@ GEM
       activerecord
       kaminari-core (= 1.2.2)
     kaminari-core (1.2.2)
+=======
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
     loofah (2.22.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -261,7 +264,10 @@ DEPENDENCIES
   dotenv-rails
   httparty
   jwt (~> 2.2.2)
+<<<<<<< HEAD
   kaminari
+=======
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
   mailjet
   pg (~> 1.1)
   puma (~> 5.0)

@@ -1,8 +1,12 @@
 require 'mailjet'
+<<<<<<< HEAD
 require 'securerandom'
 class Api::V1::UsersController < ApplicationController
   skip_before_action :credit_available_payouts, only: [:create, :sign_in, :generate_activation_token]
   
+=======
+class Api::V1::UsersController < ApplicationController
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
   before_action :set_user, only: %i[ show update destroy ]
 
   # GET /users
@@ -19,6 +23,7 @@ class Api::V1::UsersController < ApplicationController
 
   # POST /users
   # POST /users
+<<<<<<< HEAD
 # POST /users
 def create
   user = User.new(user_params)
@@ -40,15 +45,48 @@ def create
     send_activation_email(user, html_template_path)
 
     render json: { user: user, jwt_token: jwt_token, message: "Validation email sent to your email address" }, status: :created
+=======
+def create
+  user = User.new(user_params)
+
+  if user.save
+    user.update_columns(activation_token: SecureRandom.urlsafe_base64)
+    user.update_columns(activation_token_expires_at: 2.days.from_now)
+    # Generate a JWT token for the user
+    jwt_token = generate_jwt_token(user)
+
+    # Send activation email
+    html_template_path = File.expand_path('../../../../views/user_mailer/activation_email.html.erb', __FILE__)
+    send_activation_email(user, html_template_path)
+
+    render json: { message: 'Account created check your email for activation instructions.', jwt_token: jwt_token }, status: :created
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
   else
     render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
   end
 end
 
+<<<<<<< HEAD
+=======
+# Generate JWT token for user
+def generate_jwt_token(user)
+  payload = { user_id: user.id, exp: 1.day.from_now.to_i, email: user.email, name: user.name, avatar: user.avatar, activated: user.activated, seller: user.seller, store_name: user.store_name, mobile: user.mobile, state: user.state}
+  JWT.encode(payload, Rails.application.secrets.secret_key_base)
+end
+
+# def logged_in_user
+#   if @current_user
+#     render json: { user: @current_user }, status: :ok
+#   else
+#     render json: { error: 'No user logged in.' }, status: :unprocessable_entity
+#   end
+# end
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
 
 # POST /sign_in
 def sign_in
   user = User.find_by(email: params[:email])
+<<<<<<< HEAD
   if user&.authenticate(params[:password])
     @current_user = user # globally available now
     jwt_token = generate_jwt_token(user)
@@ -173,6 +211,16 @@ Rails.logger.info "PAYSTACK STATUS: #{response.code}"
 end
 
 # POST /sign_in
+=======
+
+  if user && user.authenticate(params[:password])
+    jwt_token = generate_jwt_token(user)
+    render json: { message: 'Sign-in successful.', jwt_token: jwt_token, status: :ok }
+  else
+    render json: { error: 'Invalid credentials.' }, status: :unauthorized
+  end
+end
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
 
   def activate
     puts "Activation token received: #{params[:token]}"
@@ -223,9 +271,15 @@ end
         html_template_path = File.expand_path('../../../../views/user_mailer/activation_email.html.erb', __FILE__)
         send_activation_email(user, html_template_path)
 
+<<<<<<< HEAD
         render json: { message: 'Please check your email for activation instructions.' }, status: :ok
       else
         render json: { message: 'Check your email for activation link.' }, status: :unprocessable_entity
+=======
+        render json: { message: 'New activation token generated. Please check your email for activation instructions.' }, status: :ok
+      else
+        render json: { message: 'User account is still pending activation.' }, status: :unprocessable_entity
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
       end
     else
       render json: { error: 'User not found.' }, status: :not_found
@@ -237,7 +291,11 @@ end
       # Generate a new JWT token for the updated user
       jwt_token = generate_jwt_token(@user)
       
+<<<<<<< HEAD
       render json: { user: @user, jwt_token: jwt_token, message: "User updated successfully" }
+=======
+      render json: { user: @user, jwt_token: jwt_token }
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
     else
       render json: @user.errors, status: :unprocessable_entity
     end
@@ -261,14 +319,24 @@ end
 
     def send_activation_email(user, html_template_path)
       Mailjet.configure do |config|
+<<<<<<< HEAD
         config.api_key = ENV['APP_MAILJET_API_KEY']
         config.secret_key = ENV['APP_MAILJET_SECRET_KEY']
+=======
+        config.api_key = ENV['APP_API_KEY'] || 'd531ec7b0745a031ceae938c4730e889'
+        config.secret_key = ENV['APP_SECRET_KEY'] || '0ca4ac8ba4e43cf761f3a9bc07df7a45'
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
         config.api_version = 'v3.1'
       end
     
       # Replace with your Mailjet sender email and name
+<<<<<<< HEAD
       sender_email = 'support@artisanshub.net'
       sender_name = 'Artisans hub'
+=======
+      sender_email = 'udegbue69@gmail.com'
+      sender_name = 'Digital Art'
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
       html_content = File.read(html_template_path)
       
       # Use ERB to render dynamic content

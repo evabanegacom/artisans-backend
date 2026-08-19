@@ -19,8 +19,11 @@ gem "puma", "~> 5.0"
 # gem "redis", "~> 4.0"
 gem 'jwt', '~> 2.2.2'
 
+<<<<<<< HEAD
 gem "kaminari"
 
+=======
+>>>>>>> 5f39edc0114fca8aa6de2aff3d76971708c304ab
 gem 'httparty'
 
 gem 'uuid', '~> 2.3', '>= 2.3.9'
